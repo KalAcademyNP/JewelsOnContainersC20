@@ -5,7 +5,8 @@ namespace ProductCatalogAPI.Data
 {
 	public class CatalogContext : DbContext
 	{
-
+		public CatalogContext(DbContextOptions options) : base(options) { }
+		
 		public DbSet<CatalogType> CatalogTypes { get; set; }
 		public DbSet<CatalogBrand> CatalogBrands { get; set; }
 		public DbSet<CatalogItem> Catalog { get; set; }
