@@ -11,11 +11,25 @@ services:
       context: ./ProductCatalogAPI
       dockerfile: Dockerfile
     environment:
-      ConnectionString: "Data Source = (localdb)\\MSSQLLocalDB; Initial Catalog = CatalogDb; Integrated Security = True; Connect Timeout = 30; Encrypt = False; Trust Server Certificate=False; "
-      ExternalBaseUrl: "https://localhost:7106"
+      ConnectionString: "Data Source = mssqlserver; Initial Catalog = CatalogDb; User Id=sa;Password=ProductApi123(!); Connect Timeout = 30; Encrypt = False; Trust Server Certificate=False; "
+      ExternalBaseUrl: "http://localhost:7000"
     ports:
-      - "7000:80"
+      - "7000:8080"
+      - "7001:8081"
     container_name: jewelscatalogapi
     networks:
       - frontend
+      - backend
+    depends_on:
+      - mssqlserver
+
+  mssqlserver:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"  
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: ProductApi123(!)
+    ports:
+      - "1448:1433"
+    container_name: jewelscatalogsqlserver
+    networks:
       - backend
