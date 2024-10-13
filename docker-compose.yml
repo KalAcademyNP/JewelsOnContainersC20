@@ -13,8 +13,9 @@ services:
     environment:
       ConnectionString: "Data Source = mssqlserver; Initial Catalog = CatalogDb; User Id=sa;Password=ProductApi123(!); Connect Timeout = 30; Encrypt = False; Trust Server Certificate=False; "
       ExternalBaseUrl: "http://localhost:7000"
+      ASPNETCORE_HTTP_PORTS: 80
     ports:
-      - "7000:8080"
+      - "7000:80"
     container_name: jewelscatalogapi
     networks:
       - frontend
@@ -28,10 +29,11 @@ services:
       context: ./WebMVC
       dockerfile: Dockerfile
     environment:
-      CatalogUrl: http://localhost:7000
+      CatalogUrl: http://catalog
       ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 80
     ports:
-      - "7500:8080"
+      - "7500:80"
     container_name: webshop
     networks:
       - frontend
