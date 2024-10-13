@@ -15,13 +15,28 @@ services:
       ExternalBaseUrl: "http://localhost:7000"
     ports:
       - "7000:8080"
-      - "7001:8081"
     container_name: jewelscatalogapi
     networks:
       - frontend
       - backend
     depends_on:
       - mssqlserver
+
+  webmvc:
+    image: jewels/webmvc
+    build:
+      context: ./WebMVC
+      dockerfile: Dockerfile
+    environment:
+      CatalogUrl: http://localhost:7000
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "7500:8080"
+    container_name: webshop
+    networks:
+      - frontend
+    depends_on:
+      - catalog
 
   mssqlserver:
     image: "mcr.microsoft.com/mssql/server:2022-latest"  

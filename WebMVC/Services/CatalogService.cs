@@ -41,7 +41,7 @@ namespace WebMVC.Services
 			return items;
 		}
 
-		public async Task<Catalog?> GetCatalogItemsAsync(int page, int size, int? brand, int? type)
+		public async Task<Catalog> GetCatalogItemsAsync(int page, int size, int? brand, int? type)
 		{
 			var catalogItemsUri = APIPaths.Catalog.GetAllCatalogItems(_baseUrl, page, size, brand, type);
 			var dataString = await _httpClient.GetStringAsync(catalogItemsUri);

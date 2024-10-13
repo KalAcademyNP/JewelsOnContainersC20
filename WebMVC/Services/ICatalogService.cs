@@ -7,6 +7,6 @@ namespace WebMVC.Services
 	{
 		Task<IEnumerable<SelectListItem>> GetBrandsAsync();
 		Task<IEnumerable<SelectListItem>> GetTypesAsync();
-		Task<Catalog?> GetCatalogItemsAsync(int page, int size, int? brand, int? type);
+		Task<Catalog> GetCatalogItemsAsync(int page, int size, int? brand, int? type);
 	}
 }
