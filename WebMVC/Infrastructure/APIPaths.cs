@@ -32,7 +32,7 @@
 					preUri = $"{baseUri}/items?pageIndex={page}&pageSize={take}";
 				} else
 				{
-					preUri = $"{baseUri}/items?pageIndex={page}&pageSize={take}&{filterQs}";
+					preUri = $"{baseUri}/items/filter?pageIndex={page}&pageSize={take}&{filterQs}";
 				}
 				return preUri ;
 			}
