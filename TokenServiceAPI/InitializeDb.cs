@@ -15,7 +15,13 @@ namespace TokenServiceAPI
 				var context = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
 				context.Database.Migrate();
 
-				if (!context.Clients.Any()) 
+                ////temp code to remove and reseed data
+                //context.Clients.RemoveRange(context.Clients);
+                //context.IdentityResources.RemoveRange(context.IdentityResources);
+                //context.ApiScopes.RemoveRange(context.ApiScopes);
+                //context.SaveChanges();
+
+                if (!context.Clients.Any()) 
 				{
 					foreach (var client in Config.Clients(config)) 
 					{
