@@ -10,19 +10,15 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY . .
-RUN dotnet restore "WebMVC.csproj"
-RUN dotnet build "WebMVC.csproj" -c $BUILD_CONFIGURATION -o /app/build
-
-# Copy the certificate
-#COPY my-cert.crt /etc/ssl/certs/
-#RUN update-ca-certificates
+RUN dotnet restore "AuthAPI.csproj"
+RUN dotnet build "AuthAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "WebMVC.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
+RUN dotnet publish "AuthAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-ENTRYPOINT ["dotnet", "WebMVC.dll"]
+ENTRYPOINT ["dotnet", "AuthAPI.dll"]

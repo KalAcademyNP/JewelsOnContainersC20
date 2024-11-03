@@ -24,18 +24,20 @@ services:
       - mssqlserver
 
   tokenserver:
-    image: jewels/tokenapi
+    image: jewels/authapi
     build:
-      context: ./TokenServiceAPI
+      context: ./AuthAPI
       dockerfile: Dockerfile
     environment:
       ConnectionString: "Data Source = tokensqlserver; Initial Catalog = TokenServiceDb; User Id=sa;Password=TokenApi123(!); Connect Timeout = 30; Encrypt = False; Trust Server Certificate=False; "
-      Mvc: http://localhost:7500
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 80
+      JWT__Secret: "your_net_net_net_new_base64_encoded_key"
+      JWT__Issuer: "auth-api"
+      JWT__Audience: "auth-client"
     ports:
       - "7010:80"
-    container_name: jewelstokenapi
+    container_name: jewelsauthapi
     networks:
       - frontend
       - backend
@@ -51,6 +53,9 @@ services:
       IdentityUrl: http://192.168.1.118:7010
       ConnectionString: basket.data
       ASPNETCORE_HTTP_PORTS: 80
+      JWT__Secret: "your_net_net_net_new_base64_encoded_key"
+      JWT__Issuer: "auth-api"
+      JWT__Audience: "auth-client"
     ports:
       - "7020:80"
     container_name: jewelscartapi
@@ -70,6 +75,7 @@ services:
       CatalogUrl: http://catalog
       IdentityUrl: http://192.168.1.118:7010
       CallbackUrl: http://localhost:7500
+      CartUrl: http://cart
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 80
     ports:
@@ -80,6 +86,7 @@ services:
     depends_on:
       - catalog
       - tokenserver
+      - cart
  
   mssqlserver:
     image: "mcr.microsoft.com/mssql/server:2022-latest"  

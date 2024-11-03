@@ -1,4 +1,8 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
 using WebMVC.Infrastructure;
+using WebMVC.Models;
 using WebMVC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,31 +12,18 @@ var configuration = builder.Configuration;
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IHttpClient, CustomHttpClient>();
 builder.Services.AddTransient<ICatalogService, CatalogService>();
-
-builder.Services.AddAuthentication(options =>
-{
-	options.DefaultScheme = "Cookies";
-	options.DefaultChallengeScheme = "oidc";
-})
-.AddCookie("Cookies")
-.AddOpenIdConnect("oidc", options =>
-	{
-		options.Authority = configuration["IdentityUrl"];
-
-		options.ClientId = "mvc";
-		options.ClientSecret = "49C1A7E1-0C79-4A89-A3D6-A37998FB86B0";
-		options.RequireHttpsMetadata = false;
-		options.ResponseType = "code id_token";
-		options.SignedOutRedirectUri = configuration["CallbackUrl"];
-
-        options.Scope.Clear();
-		options.Scope.Add("openid");
-		options.Scope.Add("profile");
-
-		options.MapInboundClaims = false; // Don't rename claim types
-
-		options.SaveTokens = true;
-	});
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddTransient<ICartService, CartService>();
+builder.Services.AddTransient<IAuthService, AuthService>();
+builder.Services.AddTransient<ITokenProvider, TokenProvider>();
+builder.Services.AddTransient<IIdentityService<ApplicationUser>, IdentityService>();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromHours(10);
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/AccessDenied";
+    });
 
 var app = builder.Build();
 

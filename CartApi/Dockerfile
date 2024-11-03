@@ -13,6 +13,10 @@ COPY . .
 RUN dotnet restore "CartApi.csproj"
 RUN dotnet build "CartApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
+# Copy the certificate
+#COPY my-cert.crt /etc/ssl/certs/
+#RUN update-ca-certificates
+
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "CartApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
@@ -20,4 +24,5 @@ RUN dotnet publish "CartApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
 ENTRYPOINT ["dotnet", "CartApi.dll"]

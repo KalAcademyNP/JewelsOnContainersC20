@@ -13,6 +13,10 @@ COPY . .
 RUN dotnet restore "ProductCatalogAPI.csproj"
 RUN dotnet build "ProductCatalogAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
+# Copy the certificate
+#COPY my-cert.crt /etc/ssl/certs/
+#RUN update-ca-certificates
+
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "ProductCatalogAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
@@ -20,4 +24,5 @@ RUN dotnet publish "ProductCatalogAPI.csproj" -c $BUILD_CONFIGURATION -o /app/pu
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
 ENTRYPOINT ["dotnet", "ProductCatalogAPI.dll"]

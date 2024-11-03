@@ -11,34 +11,47 @@ namespace WebMVC.Services
         private readonly string _baseUrl;
         private readonly IConfiguration _config;
         private readonly IHttpClient _apiClient;
-        private readonly IHttpContextAccessor _httpContextAccesor;
+        private readonly ITokenProvider _tokenProvider;
         public CartService(IConfiguration config, IHttpClient client, 
-            IHttpContextAccessor httpContextAccessor)
+            ITokenProvider tokenProvider)
         {
             _config = config;
             _apiClient = client;
-            _httpContextAccesor = httpContextAccessor;
+            _tokenProvider = tokenProvider;
             _baseUrl = $"{config["CartUrl"]}/api/cart";
         }
 
-        private async Task<string> GetUserTokenAsync()
+        private string GetUserToken()
         {
-            var context = _httpContextAccesor.HttpContext;
-            return await context.GetTokenAsync("access_token");
+            return _tokenProvider.GetToken();
         }
-        public Task AddItemToCart(ApplicationUser user, CartItem product)
+        public async Task AddItemToCart(ApplicationUser user, CartItem product)
         {
-            throw new NotImplementedException();
+            //Get the users cart
+            var cart = await GetCart(user);
+            //if the item exists in the cart. if yes, increase quantity. if no, add item
+            var basketItem = cart.Items.Where(p => p.ProductId == product.ProductId).FirstOrDefault();
+            if (basketItem == null)
+            {
+                cart.Items.Add(product);
+            }
+            else
+            {
+                basketItem.Quantity++;
+            }
+            await UpdateCart(cart);
         }
 
-        public Task ClearCart(ApplicationUser user)
+        public async Task ClearCart(ApplicationUser user)
         {
-            throw new NotImplementedException();
+            var token = GetUserToken();
+            var cleanBasketUri = APIPaths.Basket.CleanBasket(_baseUrl, user.Email);
+            await _apiClient.DeleteAsync(cleanBasketUri, token);
         }
 
         public async Task<Cart> GetCart(ApplicationUser user)
         {
-            var token = await GetUserTokenAsync();
+            var token = GetUserToken();
             var getBasketUri = APIPaths.Basket.GetBasket(_baseUrl, user.Email);
             var dataString = await _apiClient.GetStringAsync(getBasketUri, token);
             var response = JsonConvert.DeserializeObject<Cart>(dataString) ??
@@ -49,14 +62,53 @@ namespace WebMVC.Services
             return response;
         }
 
-        public Task<Cart> SetQuantities(ApplicationUser user, Dictionary<string, int> quantities)
+        public async Task<Cart> SetQuantities(ApplicationUser user, 
+            Dictionary<string, int> quantities)
         {
-            throw new NotImplementedException();
+            //Get cart
+            var basket = await GetCart(user);
+            basket.Items.ForEach(x =>
+            {
+                if (quantities.TryGetValue(x.Id, out var quantity))
+                {
+                    x.Quantity = quantity;
+                }
+            });
+            return basket;
         }
 
-        public Task<Cart> UpdateCart(Cart Cart)
+        public async Task<Cart> UpdateCart(Cart cart)
         {
-            throw new NotImplementedException();
+            var token = GetUserToken();
+            var updateBasketUri = APIPaths.Basket.UpdateBasket(_baseUrl);
+            var response = await _apiClient.PostAsync(updateBasketUri, cart, token);
+
+            response.EnsureSuccessStatusCode();
+
+            return cart;
         }
+
+        //public Order MapCartToOrder(Cart cart)
+        //{
+        //    var order = new Order();
+        //    order.OrderTotal = 0;
+
+        //    cart.Items.ForEach(x =>
+        //    {
+        //        order.OrderItems.Add(new OrderItem()
+        //        {
+        //            ProductId = int.Parse(x.ProductId),
+
+        //            PictureUrl = x.PictureUrl,
+        //            ProductName = x.ProductName,
+        //            Units = x.Quantity,
+        //            UnitPrice = x.UnitPrice
+        //        });
+        //        order.OrderTotal += (x.Quantity * x.UnitPrice);
+        //    });
+
+        //    return order;
+        //}
+
     }
 }
