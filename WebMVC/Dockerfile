@@ -13,10 +13,6 @@ COPY . .
 RUN dotnet restore "WebMVC.csproj"
 RUN dotnet build "WebMVC.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Copy the certificate
-#COPY my-cert.crt /etc/ssl/certs/
-#RUN update-ca-certificates
-
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "WebMVC.csproj" -c $BUILD_CONFIGURATION -o /app/publish 

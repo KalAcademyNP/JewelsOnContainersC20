@@ -14,6 +14,7 @@ builder.Services.AddSingleton<IHttpClient, CustomHttpClient>();
 builder.Services.AddTransient<ICatalogService, CatalogService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddTransient<ICartService, CartService>();
+builder.Services.AddTransient<IOrderService, OrderService>();
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<ITokenProvider, TokenProvider>();
 builder.Services.AddTransient<IIdentityService<ApplicationUser>, IdentityService>();

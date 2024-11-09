@@ -66,6 +66,34 @@ services:
       - tokenserver
       - basket.data
 
+  order:
+    image: jewels/orderapi
+    build:
+      context: .\OrderApi
+      dockerfile: Dockerfile
+    logging:
+      driver: "json-file"
+      options: {
+        max-size: "200k",
+        max-file: "10"
+      }
+    environment:
+      IdentityUrl: http://192.168.1.118:7010
+      ConnectionString: "Data Source=mssqlserver;Initial Catalog=OrdersDb;User Id=sa;Password=ProductApi123(!);Connect Timeout=30;TrustServerCertificate=false;Encrypt=false;"
+      ASPNETCORE_HTTP_PORTS: 80
+      JWT__Secret: "your_net_net_net_new_base64_encoded_key"
+      JWT__Issuer: "auth-api"
+      JWT__Audience: "auth-client"
+    ports:
+      - "7030:80"
+    container_name: jewelsorderapi
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - tokenserver
+      - mssqlserver
+
   webmvc:
     image: jewels/webmvc
     build:
@@ -76,6 +104,9 @@ services:
       IdentityUrl: http://192.168.1.118:7010
       CallbackUrl: http://localhost:7500
       CartUrl: http://cart
+      OrderUrl: http://order
+      StripePublicKey: pk_test_jZlpubvlPmcV6QJPReImelQy
+      StripePrivateKey: sk_test_bSHT9qxwjpyCOP0qdAvHLfAA
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 80
     ports:
@@ -87,6 +118,7 @@ services:
       - catalog
       - tokenserver
       - cart
+      - order
  
   mssqlserver:
     image: "mcr.microsoft.com/mssql/server:2022-latest"  
